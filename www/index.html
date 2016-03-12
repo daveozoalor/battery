@@ -34,16 +34,13 @@
         
         
         
-		<script src="js/onesignal.js"></script>
+		<!-- <script src="js/onesignal.js"></script> -->
       <script type="text/javascript" charset="utf-8" src="phonegap-1.3.0.js"></script>
       <script type="text/javascript" charset="utf-8" src="js/battery.js"></script>
       
 		<link rel="stylesheet" href="css/jquery_mobile_1_4.css" />
 		<link rel="stylesheet" href="css/jquery_mobile_1_3_2.css" />
-		<script src="js/jquery-1.11.1.min.js"></script>
-		<script src="js/jquery.mobile-1.4.5.min.js"></script>
-
-      
+		
       
       <script>
       
@@ -68,6 +65,35 @@
 	    
 	    alert("Level: " + info.level + " isPlugged: " + info.isPlugged); 
 	    $('#status').text("Level: " + info.level + " isPlugged: " + info.isPlugged);
+	    
+	    if(info.isPlugged == 1){ //if starts charging
+	    
+	    //delay before sending email or sms
+	    selectDb();
+	    setTimeout(doSomething, 5000); //delay 5 seconds then check again
+			    	
+	    }	function doSomething() {
+	    	
+	    	//check database
+	    	selectDb();
+	    	
+	    	
+	    	if(info.isPlugged == 1 and e_status != 'off'){  // check again
+	    	 //do whatever you want here
+			  // $("button").click(function(){
+			  	
+			  	//find time
+			  	var dt = new Date();
+                var time = dt.getHours() + ":" + dt.getMinutes() + ":" + dt.getSeconds();
+			  	
+						    $.get("http://braintem.org/users/nepaAlert/ELECTRIC_POWER_ON:"+time+"/"+e_delay+"/"+e_email+"", function(data, status){
+						        alert("Data: " + data + "\nStatus: " + status);
+						    });
+				//	});
+	    	}
+			  
+			}
+
 	} 
 
     // Handle the batterycritical event
@@ -84,7 +110,72 @@
          $('#status').text("Battery Level Low " + info.level + "%");
     }
 
+
+
       </script>
+      
+      
+      <!--MAnage database -->
+      <script type="text/javascript">
+ 
+	
+	function submitClicked(){
+   if($('email').val() != ''){ //if email field is not empty
+   var e_email = $('#email').val();
+   var e_phone = $('#phone').val();
+   var e_delay = $('#delay').val();
+   var e_status = $('#inputStatus').val(); //user can switch this app off or on
+   var e_id = 1;
+   $("input").prop('disabled', true); //disable all inputs so user doesnt accidentally change them
+   //save to database
+   createDb();
+  
+   	
+   }
+
+}
+
+   function createDb(){
+   	 var opendb = openDatabase('nepaAlertDb2', '1.0', 'NepaAlert DB', 2 * 1024 * 1024); //5mb database
+      
+opendb.transaction(function (tx) {
+	
+	 tx.executeSql('CREATE TABLE IF NOT EXISTS users (id unique, email,phone,delay,status )');
+	 // tx.executeSql('INSERT INTO users (email, phone, delay,status) VALUES ( ?,?,?,?'), [ e_email, e_phone,e_delay, e_status];
+      tx.executeSql('INSERT INTO users (id, email, phone, delay, status) VALUES (1, "'+e_email+'","'+e_phone+'","'+e_delay+'","'+e_status+'")');
+});
+
+   }
+	function selectDb(){
+		var opendb = openDatabase('nepaAlertDb2', '1.0', 'NepaAlert DB', 2 * 1024 * 1024); //5mb database
+      
+		   opendb.transaction(function (tx) {
+            tx.executeSql('SELECT * FROM users', [], function (tx, results) {
+            	alert('done alert selected right now');
+               var len = results.rows.length, i;
+               msg = "<p>Found rows: " + len + "</p>";
+               document.querySelector('#status').innerHTML +=  msg;
+			   alert(results.rows.item(0).email+ ' Testing');
+              
+			   var e_email = results.rows.item(0).email;
+			   var e_phone = results.rows.item(0).phone;
+			   var e_delay = results.rows.item(0).delay;
+			   var e_status = results.rows.item(0).status; //user can switch this app off or on
+			   var e_id = 1;
+               
+            
+            }, null);
+         });
+	}
+    
+
+function editItems(){
+	$("input").prop('disabled', false); //disable all inputs so user doesnt accidentally change them
+	$("button").hide(); //disable all inputs so user doesnt accidentally change them
+}
+
+      </script>
+      
   </head>
     <body onload="init()">
          
@@ -95,23 +186,60 @@
 	</div><!-- /header -->
 
 	<div role="main" class="ui-content">
-		<p>Page content goes here.</p>
+		<h1>About</h1>
+		<p>Ever had this problem of not knowing if you should go home or not because there is no way to know if there is electric power supply at home at the moment. Well, this app solves it. Just install it in a phone you don't need often. Connect plug the phone to the electric socket. Where ever you are, it will send you notifications on the status of electricity at home.</p>
+		<p>
+			You can also set an alarm with this phone to wake you up when there is electric power supply.
+		</p>
+		<h3>How it works</h3>
+		<p>
+			1. Enter your email below <br/>
+			2. Connect this phone to the charger and connect to electric power supply. <br/>
+			3. Soon as electricity starts charging the phone, it will email you. If the electricity goes off, it will email you too.<br/>
+			4. As long as this phone is connected to power source, you can always know if there is electric power supply by checking your email.
+		</p>
 		
-		<div id="status"></div>
+        <h3>Your details</h3>
+        <form data-theme="e">
+        <button id="editItems"  onclick="editItems()">Edit items</button>
+        <label for="text-basic">Email for receiving alerts:</label>
+		<input type="text" name="email" id="email" value="" placeholder="myemail@email.com">
+        <label for="text-basic">Phone:</label>
+		<input type="text" name="phone" id="phone" value="" placeholder="+2348011111111">
+		<label for="slider-fill">Delay in minutes </label>
+ 		<input type="range" name="slider-fill" id="delay" value="1" min="0" max="10" step="1" data-highlight="true">
+        
+ 		
+ 		<label for="inputStatus">Status:</label>
+<select name="inputStatus" id="inputStatus" data-role="slider">
+     
+<option value="off">Off</option>
+ <option value="on">On</option>  
+</select>
+        
+          <input id="submit" type="button" onclick="submitClicked()" value="Submit">
+        	
+        </form>
+		<div id="status">Status here</div>
+		Before this sef
 	</div><!-- /content -->
 	
 
-	<div data-role="footer">
+	<div data-role="footer" data-position="fixed">
 		<h4>Page Footer</h4>
 	</div><!-- /footer -->
 </div><!-- /page -->
+        
         <script type="text/javascript" src="cordova.js"></script>
         <script type="text/javascript" src="js/index.js"></script>
         
-        
-        
-        <script type="text/javascript">
+       <script src="js/jquery-2.2.1.min.js"></script>
+      <script src="js/jquery.mobile-1.4.5.min.js"></script>
+      
+       <script type="text/javascript">
             app.initialize();
         </script>
+      
+		   
     </body>
 </html>
