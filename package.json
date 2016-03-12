@@ -42,5 +42,9 @@
   "license": "Apache-2.0",
   "devDependencies": {
     "jshint": "^2.6.0"
-  }
+  },
+  "cordovaPlugins": [],
+  "cordovaPlatforms": [
+    "ios"
+  ]
 }

@@ -3,7 +3,6 @@
   <description>Alerts you on nepa</description>
   <author href="http://phonegap.com" email="support@phonegap.com">Dave Ozoalor</author>
   <content src="index.html"/>
-  <gap:plugin name="onesignal-cordova-plugin" source="npm" />
 
 <!-- Recommend the newest cli but requires cli-5.1.1+ and gradle for Android. -->
 <!-- If the below settings are not compatible with your project set the "PGB ANT" version above. -->
