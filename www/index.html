@@ -69,24 +69,44 @@
 	    if(info.isPlugged == 1){ //if starts charging
 	    
 	    //delay before sending email or sms
-	    selectDb();
-	    setTimeout(doSomething, 5000); //delay 5 seconds then check again
+	    	var opendb = openDatabase('nepaAlertDb2', '1.0', 'NepaAlert DB', 2 * 1024 * 1024); //5mb database
+      
+		   opendb.transaction(function (tx) {
+            tx.executeSql('SELECT * FROM users', [], function (tx, results) {
+            	alert('done alert selected right now');
+               var len = results.rows.length, i;
+               msg = "<p>Found rows: " + len + "</p>";
+               document.querySelector('#status').innerHTML +=  msg;
+			   alert(results.rows.item(0).email+ ' Testing');
+              
+			   var e_email = results.rows.item(0).email;
+			   var e_phone = results.rows.item(0).phone;
+			   var e_delay = results.rows.item(0).delay;
+			   var e_status = results.rows.item(0).status; //user can switch this app off or on
+			   var e_id = 1;
+               
+            
+            }, null);
+         });
+         
+         var total_delay = e_delay * 1000; //converting it into seconds
+	    setTimeout(doSomething, total_delay); //delay 5000 = 5 seconds then check again
 			    	
 	    }	function doSomething() {
 	    	
 	    	//check database
-	    	selectDb();
 	    	
 	    	
-	    	if(info.isPlugged == 1 and e_status != 'off'){  // check again
-	    	 //do whatever you want here
-			  // $("button").click(function(){
+	    	
+	    	if(info.isPlugged == 1){  
+	    	// check again
+	    
 			  	
 			  	//find time
 			  	var dt = new Date();
                 var time = dt.getHours() + ":" + dt.getMinutes() + ":" + dt.getSeconds();
-			  	
-						    $.get("http://braintem.org/users/nepaAlert/ELECTRIC_POWER_ON:"+time+"/"+e_delay+"/"+e_email+"", function(data, status){
+			  	var timeago = dt.getTime();
+						    $.get("http://braintem.org/users/nepaAlert/ELECTRIC_POWER_CAME_ON:"+time+"/"+timeago+"/"+e_email+"", function(data, status){
 						        alert("Data: " + data + "\nStatus: " + status);
 						    });
 				//	});
