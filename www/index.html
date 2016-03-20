@@ -40,7 +40,7 @@
       
 		<link rel="stylesheet" href="css/jquery_mobile_1_4.css" />
 		<link rel="stylesheet" href="css/jquery_mobile_1_3_2.css" />
-		
+		 <script src="js/jquery-2.2.1.min.js"></script>
       
       <script>
       
@@ -67,7 +67,8 @@
 	    $('#status').text("Level: " + info.level + " isPlugged: " + info.isPlugged);
 	    
 	    if(info.isPlugged == 1){ //if starts charging
-	    
+	  
+		  
 	    //delay before sending email or sms
 	    	var opendb = openDatabase('nepaAlertDb2', '1.0', 'NepaAlert DB', 2 * 1024 * 1024); //5mb database
       
@@ -81,21 +82,25 @@
               
 			   var e_email = results.rows.item(0).email;
 			   var e_phone = results.rows.item(0).phone;
-			   var e_delay = results.rows.item(0).delay;
+			  // var e_delay = results.rows.item(0).delay;
 			   var e_status = results.rows.item(0).status; //user can switch this app off or on
 			   var e_id = 1;
                
             
             }, null);
          });
-         
-         var total_delay = e_delay * 1000; //converting it into seconds
-	    setTimeout(doSomething, total_delay); //delay 5000 = 5 seconds then check again
-			    	
-	    }	function doSomething() {
+       
+        $('#status').append("Light just came on");
+	      setTimeout(doSomething, 5000); //delay 5000 = 5 seconds then check again
+	   	    	
+	    }	
+	    
+	    } 
+	   // alert("Something is getting done: ");
+	    function doSomething() {
 	    	
 	    	//check database
-	    	
+	    	alert("Something is getting done");
 	    	
 	    	
 	    	if(info.isPlugged == 1){  
@@ -106,16 +111,26 @@
 			  	var dt = new Date();
                 var time = dt.getHours() + ":" + dt.getMinutes() + ":" + dt.getSeconds();
 			  	var timeago = dt.getTime();
-						    $.get("http://braintem.org/users/nepaAlert/ELECTRIC_POWER_CAME_ON:"+time+"/"+timeago+"/"+e_email+"", function(data, status){
+		 var total = "http://braintem.org/users/nepaAlert/Electric Power Just came on";
+		 var totalOthers = "/23/"+e_email.toString()+"/on/hi_battery";
+		 
+		 //total = total.concat(totalTime);
+		 total = total.concat(totalOthers);
+var trySend = $.get(total, function(data, status){
 						        alert("Data: " + data + "\nStatus: " + status);
 						    });
+						    
+						    if(trySend){
+						    	alert("Successful");
+						    }
+	    
 				//	});
 	    	}
 			  
 			}
 
-	} 
-
+		
+				    
     // Handle the batterycritical event
     //
     function onBatteryCritical(info) {
