@@ -30,7 +30,11 @@
         <title>Hello World</title>
         
         
-        
+        <script>
+        	 $(document).bind("mobileinit", function(){
+			     $.mobile.allowCrossDomainPages = true; //allow cross domain pages, app can load externalpages
+			});
+        </script>
         
         
         
@@ -43,6 +47,7 @@
 		 <script src="js/jquery-2.2.1.min.js"></script>
       
       <script>
+     
       
       function onLoad() {
         document.addEventListener("deviceready", onDeviceReady, false);
